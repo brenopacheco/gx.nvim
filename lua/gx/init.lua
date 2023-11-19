@@ -6,7 +6,7 @@ local sysname = vim.loop.os_uname().sysname
 local M = {}
 
 -- search for url with handler
-local function search_for_url()
+function M.search_for_url()
   local line = vim.api.nvim_get_current_line()
   local mode = vim.api.nvim_get_mode().mode
 
@@ -37,7 +37,7 @@ local function bind_keys()
   vim.g.netrw_nogx = 1 -- disable netrw gx
 
   local opts = { noremap = true, silent = true }
-  keymap({ "n", "x" }, "gx", search_for_url, opts)
+  keymap({ "n", "x" }, "gx", M.search_for_url, opts)
 end
 
 -- get the app for opening the webbrowser
@@ -84,13 +84,16 @@ local function with_defaults(options)
     handler_options = {
       search_engine = options.handler_options.search_engine or "google",
     },
+    override_gx = options.override_gx or true,
   }
 end
 
 -- setup function
 function M.setup(options)
   M.options = with_defaults(options)
-  bind_keys()
+  if M.options.override_gx then
+    bind_keys()
+  end
   vim.api.nvim_create_user_command("Browse", function(opts)
     M.browse(opts.fargs[1])
   end, { nargs = 1 })
